@@ -9,6 +9,8 @@ public class Pause_Play_Button : MonoBehaviour {
     public GUISkin myGUIskin;
     float x_pos = 0.14f;
     float y_pos = 0.933f;
+    
+    
 
     Animator main_animator, rueckenmark_animator;
     float main_old, rueckenmark_old;
@@ -22,12 +24,16 @@ public class Pause_Play_Button : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        
+    }
 
     void OnGUI()
-
     {
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Space)
+        {
+            state = !state;
+        }
+
         state = GUI.Toggle(new Rect(x_pos * Screen.width, y_pos * Screen.height, Screen.width * 0.02f, Screen.width * 0.02f), state, "", myGUIskin.customStyles[0]);
         if (!state && state_old)
         {
@@ -42,8 +48,8 @@ public class Pause_Play_Button : MonoBehaviour {
         {
             state_old = true;
             Debug.Log("on");
-            main_animator.speed = main_old;
-            rueckenmark_animator.speed = rueckenmark_old;
+            main_animator.speed = main_old == 0 ? 0 : ChangeSpeed.animSpeedMult;
+            rueckenmark_animator.speed = rueckenmark_old == 0 ? 0 : ChangeSpeed.animSpeedMult;
         }
     }
 }

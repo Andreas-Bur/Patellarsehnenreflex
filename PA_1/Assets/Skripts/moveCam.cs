@@ -13,8 +13,6 @@ public class moveCam : MonoBehaviour
     float rotateSensitivity;    //rotate
     float angleX, angleY;       //rotate
 
-    GameObject sphere;
-
     private Vector3 screenPointMiddle;
     private Vector3 offsetMiddle;
     private Vector3 dragDifference;
@@ -26,22 +24,19 @@ public class moveCam : MonoBehaviour
     public static Camera nerveCam;
     public static Camera rueckenmarkCam;
 
+    public static bool disableMovement = false;
+
     void Start()
     {
-        scrollSensitivity = 20;
-        rotateSensitivity = 100;
+        scrollSensitivity = 40;
+        rotateSensitivity = 150;
 
         angleX = 0;
         angleY = 0;
 
         middlePoint = Vector3.zero;
         oldMiddlePoint = middlePoint;
-        
-        //sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //sphere.transform.localScale = new Vector3(0, 0, 0);
-        //sphere.transform.position = middlePoint;
 
-        
         mainCam = GameObject.Find("Main Camera").GetComponent<Camera>();
         boneCam = GameObject.Find("Bone Camera").GetComponent<Camera>();
         nerveCam = GameObject.Find("Nerven Camera").GetComponent<Camera>();
@@ -54,10 +49,10 @@ public class moveCam : MonoBehaviour
 
         updateStatus();
 
-        if (isDragging)
+        if (isDragging && !disableMovement)
         {
 
-            if (Input.GetMouseButtonDown(2))
+            if (Input.GetMouseButtonDown(1))
             {
 
                 screenPointMiddle = mainCam.WorldToScreenPoint(middlePoint);
@@ -65,16 +60,14 @@ public class moveCam : MonoBehaviour
 
             }
 
-            if (Input.GetMouseButton(2))
+            if (Input.GetMouseButton(1))
             {
 
                 Vector3 cursorPointMiddle = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPointMiddle.z);
                 Vector3 cursorPositionMiddle = mainCam.ScreenToWorldPoint(cursorPointMiddle) + offsetMiddle;
 
                 middlePoint = -cursorPositionMiddle;
-                //Debug.Log("sphere: "+ sphere.transform.position);
-                //Debug.Log("middle: " + middlePoint);
-                //sphere.transform.position = middlePoint;
+
                 mainCam.transform.position += (middlePoint - oldMiddlePoint);
                 boneCam.transform.position += (middlePoint - oldMiddlePoint);
                 nerveCam.transform.position += (middlePoint - oldMiddlePoint);
@@ -85,9 +78,8 @@ public class moveCam : MonoBehaviour
             }
 
         }
-        else if (isRotating)
+        else if (isRotating && !disableMovement)
         {
-            //Debug.Log("Pressed middle click.");
             newMouseLocation = new Vector3(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
             angleX = newMouseLocation.x * 360 / (2 * Mathf.PI * Vector3.Distance(transform.position, middlePoint) * Time.deltaTime * rotateSensitivity);
             angleY = newMouseLocation.y * 360 / (2 * Mathf.PI * Vector3.Distance(transform.position, middlePoint) * Time.deltaTime * rotateSensitivity);
@@ -101,28 +93,22 @@ public class moveCam : MonoBehaviour
             nerveCam.transform.RotateAround(middlePoint, -transform.right, angleY);
         }
 
-        else if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        else if (Input.GetAxis("Mouse ScrollWheel") != 0 && !disableMovement)
         {
-            //Debug.Log("Scroll: " + Input.mouseScrollDelta);
 
-            //Vector3 next_position = Vector3.MoveTowards(transform.position, Camera.main., scrollSensitivity * Input.GetAxis("Mouse ScrollWheel"));
             Vector3 next_position;
-            if (Input.GetKeyUp(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift))
             {
-                next_position = mainCam.transform.position + mainCam.transform.forward * scrollSensitivity * Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime * 2;
+                next_position = mainCam.transform.position + mainCam.transform.forward * scrollSensitivity * Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime * 3;
             }
             else
             {
                 next_position = mainCam.transform.position + mainCam.transform.forward * scrollSensitivity * Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime;
             }
 
-            
-            //if (next_position != middlePoint)
-            //{
             mainCam.transform.position = next_position;
             boneCam.transform.position = next_position;
             nerveCam.transform.position = next_position;
-            //}
 
         }
 
@@ -130,29 +116,37 @@ public class moveCam : MonoBehaviour
 
     void updateStatus()
     {
-        //remove
-        if (isDragging && (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetMouseButtonUp(2)))
+        if (!disableMovement)
+        {
+            //remove
+            if (isDragging && (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetMouseButtonUp(1)))
+            {
+                isDragging = false;
+            }
+
+            if (isRotating && Input.GetMouseButtonUp(1))
+            {
+                isRotating = false;
+            }
+
+
+            //add
+            if (!isRotating && (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(1)))
+            {
+                isDragging = true;
+            }
+
+            if (!isDragging && Input.GetMouseButtonDown(1))
+            {
+                isRotating = true;
+            }
+        }else
         {
             isDragging = false;
-        }
-
-        if (isRotating && Input.GetMouseButtonUp(2))
-        {
             isRotating = false;
+            
         }
-
-
-        //add
-
-        if (!isRotating && (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(2)))
-        {
-            isDragging = true;
-        }
-
-        if (!isDragging && Input.GetMouseButtonDown(2))
-        {
-            isRotating = true;
-        }
+        
     }
 
     Vector3 MousePos()

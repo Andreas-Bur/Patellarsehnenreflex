@@ -14,8 +14,9 @@ public class Scrollbalken : MonoBehaviour {
     float[] animLengths;
     string[] animNames;
     float totalTime = 0f;
-    float curTime;
-    //float[] animTimes = {0.5f, 3.008547f, 3.069767f, 2f, 5f, 8.888881f, 5f, 1.999998f, 3.96f };
+    float curTime, curTimeOld;
+    bool reachedEnd = false;
+
     Animator main_animator;
     RuntimeAnimatorController rac;
 
@@ -23,14 +24,16 @@ public class Scrollbalken : MonoBehaviour {
 
     private void OnGUI()
     {
+
         value = GUI.HorizontalSlider(new Rect(x_pos * Screen.width, y_pos * Screen.height + Screen.height * 0.01f, Screen.width * sizeX, Screen.width * sizeY), value, 0f, 1f);
         //value = 0.5f;
-        
+
     }
+
 
     void Start () {
         main_animator = GameObject.Find("Modell_v3.1_FBX").GetComponent<Animator>();
-
+        curTimeOld = 0;
         setupLengths();
 	}
 	
@@ -44,15 +47,33 @@ public class Scrollbalken : MonoBehaviour {
             for (int i = 0; i < Kontrollskript.currentAnim; i++)
             {
                 curTime += animLengths[i];
+                
             }
-            float playback_time = (main_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) * animLengths[Kontrollskript.currentAnim];
+            Debug.Log("i: " + Kontrollskript.currentAnim);
+            float playback_time = (main_animator.GetCurrentAnimatorStateInfo(0).normalizedTime) * animLengths[Kontrollskript.currentAnim];
+
 
             //Debug.Log(Kontrollskript.currentAnim+" length: "+ main_animator.GetCurrentAnimatorStateInfo(0).length);
             Debug.Log("normTime: " + main_animator.GetCurrentAnimatorStateInfo(0).normalizedTime + " stateLength: " + animLengths[Kontrollskript.currentAnim]);
             Debug.Log("playbacktime: " + playback_time + " currtime: " + curTime);
             curTime += playback_time;
             Debug.Log("totalCurrentTime: " + curTime);
+            if(Kontrollskript.currentAnim == 1)
+            {
+                reachedEnd = false;
+            }
+            if(Kontrollskript.currentAnim == 8)
+            {
+                reachedEnd = true;
+            }
 
+            if(curTime < curTimeOld && !reachedEnd)
+            {
+
+                //Pause_Play_Button.state = false;
+                curTime = curTimeOld;
+            }
+            curTimeOld = curTime;
             
             value = curTime / totalTime;
         }

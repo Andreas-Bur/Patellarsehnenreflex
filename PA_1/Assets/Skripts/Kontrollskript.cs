@@ -42,7 +42,7 @@ public class Kontrollskript : MonoBehaviour {
         signal2 = GameObject.Find("Rueckenmark_v1/Signal_2");
         kreuz = GameObject.Find("Rueckenmark_v1/Kreuz");
 
-
+        Pause_Play_Button.state = false;
     }
 
 	void FixedUpdate () {
@@ -84,11 +84,11 @@ public class Kontrollskript : MonoBehaviour {
                         break;
                     case "04_SignalZumR_ckenmark_R":
                         currentAnim = 4;
-                        SettingSignalZumRueckenmark(0);
+                        SettingSignalZumRueckenmark(1);
                         break;
                     case "04_SignalZumR_ckenmark_L":
                         currentAnim = 4;
-                        SettingSignalZumRueckenmark(0);
+                        SettingSignalZumRueckenmark(1);
                         break;
                     case "05_R_ckenmark_R":
                         currentAnim = 5;
@@ -104,11 +104,11 @@ public class Kontrollskript : MonoBehaviour {
                         break;
                     case "Endplatte_R":
                         currentAnim = 7;
-                        SettingEndplatte(0);
+                        SettingEndplatte(1);
                         break;
                     case "Endplatte_L":
                         currentAnim = 7;
-                        SettingEndplatte(0);
+                        SettingEndplatte(1);
                         break;
                     case "07_Endplatte_Kick_R":
                         currentAnim = 8;
@@ -117,7 +117,7 @@ public class Kontrollskript : MonoBehaviour {
                         currentAnim = 8;
                         break;
                     default:
-                        currentAnim = -1;
+                        currentAnim = 0;
                         break;
                 }
 
@@ -215,8 +215,8 @@ public class Kontrollskript : MonoBehaviour {
         if (right)
         {
             muskelspindel_R.SetActive(true);
-
-        }else
+        }
+        else
         {
             muskelspindel_L.SetActive(true);
         }
@@ -225,6 +225,10 @@ public class Kontrollskript : MonoBehaviour {
     //Setzt Sichtbarkeit der benötigten Objekte für Animation "04_SignalZumRückenmark"
     void SettingSignalZumRueckenmark(int delay)
     {
+        if (delay > 0)
+        {
+            StartCoroutine(Waiter(delay));
+        }
         SettingMuskelspindel(0);
        // currentAnim = 4;
         hammer_R.SetActive(false);
@@ -249,11 +253,9 @@ public class Kontrollskript : MonoBehaviour {
             rueckenmark.SetActive(false);
             rueckenmark.SetActive(true);
             moveCam.rueckenmarkCam.enabled = true;
-            rueckenmark_animator.speed = 1;
+            rueckenmark_animator.speed = ChangeSpeed.animSpeedMult;
         }
-        
 
-        
         signal_L.SetActive(false);
         signal_R.SetActive(false);
 
@@ -270,18 +272,30 @@ public class Kontrollskript : MonoBehaviour {
         if (right)
         {
             signal_R.SetActive(true);
-        }else
+            endplatte_R.SetActive(true);
+        }
+        else
         {
             signal_L.SetActive(true);
+            endplatte_L.SetActive(true);
         }
     }
     //Setzt Sichtbarkeit der benötigten Objekte für Animation "07_Endplatte"
     void SettingEndplatte(int delay)
     {
+        
         SettingsSignalZumMuskel(0);
+
+        if (delay > 0)
+        {
+            StartCoroutine(Waiter(delay));
+        }
         //currentAnim = 7;
+
         signal_L.SetActive(false);
         signal_R.SetActive(false);
+
+        
         //Endplatte blau
     }
     
@@ -313,10 +327,16 @@ public class Kontrollskript : MonoBehaviour {
         float rueckenmark_speed_old = rueckenmark_animator.speed;
         main_animator.speed = 0;
         rueckenmark_animator.speed = 0;
-        yield return new WaitForSecondsRealtime(waitingTime);
+        float calcTime = waitingTime;
+        if (ChangeSpeed.animSpeedMult>=1)
+        {
+            calcTime = waitingTime / ChangeSpeed.animSpeedMult;
+        }
+        
+        yield return new WaitForSecondsRealtime(calcTime);
         Debug.Log(main_speed_old+" &&& "+rueckenmark_speed_old);
-        main_animator.speed = main_speed_old;
-        rueckenmark_animator.speed = rueckenmark_speed_old;
+        main_animator.speed = main_speed_old == 0 ? 0 : ChangeSpeed.animSpeedMult;
+        rueckenmark_animator.speed = rueckenmark_speed_old == 0 ? 0 : ChangeSpeed.animSpeedMult;
     }
 
 }

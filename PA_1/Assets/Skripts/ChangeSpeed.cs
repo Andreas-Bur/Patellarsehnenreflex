@@ -4,24 +4,19 @@ using UnityEngine;
 
 public class ChangeSpeed : MonoBehaviour {
 
-    float animSpeedMult;
+    public static float animSpeedMult;
     string speedInputField;
     string speedInputFieldOld;
     
     public GUIStyle style;
 
-	// Use this for initialization
+    bool hasSetZero = false;
+
 	void Start () {
 
         animSpeedMult = 1f;
         speedInputField = animSpeedMult+"x";
         speedInputFieldOld = speedInputField;
-        
-
-        //save speed in public variable animSpeedMult
-        //is changed: if !resting: set speed as animator.speed
-
-        //TODO: at waiting/pause at resume set animator.speed as animSpeedMult
     }
 
     private void OnGUI()
@@ -31,8 +26,20 @@ public class ChangeSpeed : MonoBehaviour {
         GUI.SetNextControlName("SpeedField");
         
         speedInputField = GUI.TextField(new Rect(Screen.width - 2 * 0.067f * Screen.height, 0.923f * Screen.height, Screen.width * 0.03f, Screen.width * 0.03f), speedInputField, style);
+        GUI.Label(new Rect(Screen.width - 2 * 0.067f * Screen.height, 0.923f * Screen.height, Screen.width * 0.03f, Screen.width * 0.03f), new GUIContent("", "Geschwindigkeit: "));
 
-        if(speedInputField != speedInputFieldOld && GUI.GetNameOfFocusedControl() != "SpeedField")
+        if (GUI.tooltip == "Geschwindigkeit: ")
+        {
+            GUI.color = Color.black;
+            GUI.Label(new Rect(Screen.width - 2 * 0.067f * Screen.height - 100, 0.938f * Screen.height, Screen.width * 0.1f, Screen.width * 0.03f), "Geschwindigkeit: ");
+        }
+
+        if (Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.Return)
+        {
+            GUI.FocusControl(null);
+        }
+
+        if (speedInputField != speedInputFieldOld && GUI.GetNameOfFocusedControl() != "SpeedField")
         {
             try
             {
@@ -41,6 +48,7 @@ public class ChangeSpeed : MonoBehaviour {
                     speedInputField = speedInputField.Substring(0, speedInputField.Length - 1);
                 }
                 animSpeedMult = float.Parse(speedInputField, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                
             }
             catch (System.Exception)
             {
@@ -53,15 +61,27 @@ public class ChangeSpeed : MonoBehaviour {
                 speedInputFieldOld = speedInputField;
                 Debug.Log(speedInputField);
             }
+            if (Kontrollskript.main_animator.speed != 0 || hasSetZero)
+            {
+                Kontrollskript.main_animator.speed = animSpeedMult;
+            }
+            if (Kontrollskript.rueckenmark_animator.speed != 0 || hasSetZero)
+            {
+                Kontrollskript.rueckenmark_animator.speed = animSpeedMult;
+            }
+            if (animSpeedMult == 0)
+            {
+                hasSetZero = true;
+            }
+            else
+            {
+                hasSetZero = false;
+            }
         }
+        
     }
 
-    // Update is called once per frame
     void Update () {
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            Debug.Log("Enter");
-            GUI.FocusControl("");
-        }
+
 	}
 }

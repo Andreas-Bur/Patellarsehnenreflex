@@ -16,7 +16,9 @@ public class QuitApplication : MonoBehaviour {
 
     private void OnGUI()
     {
-        pressed = GUI.Button(new Rect(20, 20, Screen.width * 0.02f, Screen.width * 0.02f), image, style);
+        pressed = GUI.Button(new Rect(20, 20, Screen.width * 0.02f, Screen.width * 0.02f), new GUIContent("", "Schliessen"), style);
+        GUI.color = Color.black;
+        GUI.Label(new Rect(50, 20, 100, Screen.width * 0.02f), GUI.tooltip);
     }
 
     // Update is called once per frame

@@ -1,5 +1,5 @@
 2017.2.0f3:2.8.2.0
-StandaloneWindows64
+StandaloneOSXUniversal
 D:/Programme/unity/Editor/Data/Managed/UnityEditor.dll
 D:/Programme/unity/Editor/Data/Managed/UnityEngine/UnityEngine.dll
 D:/Programme/unity/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll
